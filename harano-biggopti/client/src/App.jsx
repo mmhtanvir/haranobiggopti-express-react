@@ -1,16 +1,33 @@
 import React from 'react';
-import Header from './components/header/header';
-import Footer from './components/footer/footer';
+import Login from './components/login/login';
+import Signup from './components/signup/signup';
+import Admin from './components/admin/admin';
+import Home from './components/home/home';
 import './App.css';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <Signup />,
+  },
+  {
+    path: "/admin",
+    element: <Admin />,
+  },
+]);
 
 const App = () => {
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <Header />
-      <div className="flex-grow-1">
-      </div>
-      <Footer />
-    </div>
+    <RouterProvider router={router} />
   );
 };
 
