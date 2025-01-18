@@ -41,7 +41,31 @@ app.post('/signup', (req,res)=>{
             console.log(error)
         } else{
             console.log(results)
-            return res.render({message : 'user registered!'})
+            return res.json({ message: 'User Registered successfully!' });
+        }
+    })
+
+})
+
+app.post('/login', (req,res)=>{
+    const setLoginNumber = req.body.LoginNumber
+    const setLoginPassword = req.body.LoginPassword
+
+    const SQL = 'SELECT * FROM users WHERE number = ? AND password = ?'
+    const Values = [setLoginNumber, setLoginPassword]
+
+    
+    db.query(SQL, Values, (error, results) =>{
+        if(error){
+            console.log(error)
+        }
+        if(results.length > 0){
+            console.log(results)
+            return res.json({ message: 'User logged in successfully!' });
+        }
+        else{
+            console.log('no user found or wrong credentials')
+            return res.json({ message: 'no user found or wrong credentials' });
         }
     })
 

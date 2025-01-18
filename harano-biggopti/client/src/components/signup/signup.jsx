@@ -3,15 +3,18 @@ import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavigationBar from '../../assets/navigation';
 import Axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate()
 
-  const createUser = () => {
-
+  const createUser = (event) => {
+    event.preventDefault();
+  
     Axios.post('http://localhost:2000/signup', {
       email: email,
       name: name,
@@ -20,11 +23,13 @@ const Signup = () => {
     })
       .then((response) => {
         console.log('User created:', response.data.message);
+        navigate('/login');
       })
       .catch((error) => {
         console.error('Error creating user:', error);
       });
   };
+  
 
   return (
     <>
