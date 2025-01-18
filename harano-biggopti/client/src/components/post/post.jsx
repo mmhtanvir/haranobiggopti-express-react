@@ -31,7 +31,6 @@ function LostAndFoundForm() {
   const submitForm = (event) => {
     event.preventDefault();
 
-    // Create FormData instance to send multipart data including image
     const formData = new FormData();
     formData.append('category', category);
     formData.append('animal', animal);

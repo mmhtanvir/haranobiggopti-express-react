@@ -8,6 +8,7 @@ const path = require('path')
 
 app.use(express.json())
 app.use(cors())
+app.use('/uploads', express.static('uploads'));
 
 const UPLOADS = "./uploads/"
 
@@ -137,6 +138,20 @@ app.post('/create_posts', upload.single('image'), (req, res) => {
         }
     });
 });
+
+app.get('/', (req, res) => {
+    const SQL = 'SELECT * FROM LostAndFound';
+
+    db.query(SQL, (error, results) => {
+        if (error) {
+            console.log(error);
+            return res.json({ message: 'Error fetching posts.' });
+        } else {
+            return res.json(results);
+        }
+    });
+});
+
 
 app.listen(2000, () => {
     console.log(`server at 2000`)

@@ -1,50 +1,69 @@
-  
-import { Card, Row, Col } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useState, useEffect } from 'react';
+import { Container, Row, Col, Card } from 'react-bootstrap';
+import Axios from 'axios';
 import NavigationBar from '../../assets/navigation';
 
-const Home = () => {
+function Home() {
+
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    Axios.get('http://localhost:2000/')
+      .then((response) => {
+        setPosts(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching posts:', error);
+      });
+  }, []);
+
   return (
     <>
       <NavigationBar />
-      <div className="container mt-4 text-center">
-        <Row className="justify-content-center">
-          <Col xs={12} md={4}>
-            <Card className="mb-5 shadow-lg">
-              <Card.Img
-                variant="top"
-                src="../images/logo.png"
-                alt="image.jpg"
-                className="rounded-md"
-              />
-              <Card.Body className="text-left">
-                <Card.Title className="font-weight-bold">sdfgxcvgb</Card.Title>
-                <div className="mb-2">
-                  <a href="#" className="font-weight-bold text-decoration-none">
-                    my name
-                  </a>
-                </div>
-                <div className="mb-2">
-                  <a href="/category/person" className="font-weight-bold text-decoration-none">
-                    person
-                  </a>
-                </div>
-                <Card.Text className="text-gray-800">
-                  <strong>Description</strong>: <br /> rfgbfvbh
-                </Card.Text>
-                <Card.Text className="text-muted text-xs">
-                  <strong>2025-01-17 13:15</strong>
-                </Card.Text>
-              </Card.Body>
-                <span className="badge bg-light text-dark py-1 px-3">
-                  #drfgvbtfvtgb
-                </span>
-            </Card>
-          </Col>
+      <Container className="mt-4">
+        <Row className="justify-content-center d-flex flex-column align-items-center">
+          {posts.length === 0 ? (
+            <p>No posts found</p>
+          ) : (
+            posts.map((post) => (
+              <Col xs={12} md={6} lg={4} key={post.id} className="mb-4">
+                <Card className="shadow-lg">
+                  <Card.Img
+                    variant="top"
+                    src={`http://localhost:2000/uploads/${post.image}`}
+                    alt="Post Image"
+                    className="rounded-md"
+                  />
+                  <Card.Body className="text-left">
+                    <Card.Title className="font-weight-bold">{post.title}</Card.Title>
+                    <div className="mb-2">
+                      <a href="#" className="font-weight-bold text-decoration-none">
+                        {post.person_name || 'Anonymous'}
+                      </a>
+                    </div>
+                    <div className="mb-2">
+                      <a href={`/category/${post.category}`} className="font-weight-bold text-decoration-none">
+                        {post.category}
+                      </a>
+                    </div>
+                    <Card.Text className="text-gray-800">
+                      <strong>Description</strong>: <br /> {post.description}
+                    </Card.Text>
+                    <Card.Text className="text-muted text-xs">
+                      <strong>{new Date(post.created_at).toLocaleString()}</strong>
+                    </Card.Text>
+                  </Card.Body>
+                  <span className="badge bg-light text-dark py-1 px-3">
+                    {post.tags || 'No tags'}
+                  </span>
+                </Card>
+              </Col>
+            ))
+          )}
         </Row>
-      </div>
+      </Container>
     </>
   );
-};
+}
 
 export default Home;
