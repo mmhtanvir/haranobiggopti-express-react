@@ -1,4 +1,3 @@
-import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -18,22 +17,22 @@ const NavigationBar = () => {
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link href="#">
+              <Nav.Link href="#" active>
                 <b>About</b>
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link href="/create_posts">
+              <Nav.Link href="/create_posts" active>
                 <b>Posts</b>
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link href="/logout">
+              <Nav.Link href="/logout" active>
                 <b>Logout</b>
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link href="/login">
+              <Nav.Link href="/login" active>
                 <b>Login/Signup</b>
               </Nav.Link>
             </Nav.Item>

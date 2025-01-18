@@ -1,8 +1,9 @@
-import React from 'react';
+  
 import Login from './components/login/login';
 import Signup from './components/signup/signup';
 import Admin from './components/admin/admin';
 import Home from './components/home/home';
+import Post from './components/post/post';
 import './App.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: <Admin />,
+  },
+  {
+    path: "/create_posts",
+    element: <Post />,
   },
 ]);
 
