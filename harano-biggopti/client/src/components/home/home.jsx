@@ -3,7 +3,7 @@ import { Container, Row, Col, Card } from 'react-bootstrap';
 import Axios from 'axios';
 import NavigationBar from '../../assets/navigation';
 
-function Home() {
+const Home = () => {
 
   const [posts, setPosts] = useState([]);
 

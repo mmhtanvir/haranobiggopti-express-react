@@ -1,108 +1,85 @@
-const express = require('express')
-const app = express()
-const mysql = require('mysql2')
-const cors = require('cors')
-const dotenv = require('dotenv')
-const multer = require('multer')
-const path = require('path')
+const express = require('express');
+const app = express();
+const cors = require('cors');
+const dotenv = require('dotenv');
+const multer = require('multer');
+const path = require('path');
+const { sequelize, connectToDB } = require('./db');
+const { User, Posts } = require('./models');
 
-app.use(express.json())
-app.use(cors())
+app.use(express.json());
+app.use(cors());
 app.use('/uploads', express.static('uploads'));
 
-const UPLOADS = "./uploads/"
+const UPLOADS = "./uploads/";
 
 const storage = multer.diskStorage({
-    destination : (req, file, cb) =>{
-        cb(null, UPLOADS)
+    destination: (req, file, cb) => {
+        cb(null, UPLOADS);
     },
-    filename : (req, file, cb) =>{
-        const fileExt = path.extname(file.originalname)
+    filename: (req, file, cb) => {
+        const fileExt = path.extname(file.originalname);
         const fileName = file.originalname
-                            .replace(fileExt, "")
-                            .toLowerCase()
-                            .split(" ")
-                            .join("-")+"-"+Date.now()
-        cb(null, fileName+fileExt)
+            .replace(fileExt, "")
+            .toLowerCase()
+            .split(" ")
+            .join("-") + "-" + Date.now();
+        cb(null, fileName + fileExt);
     },
-})
+});
 
-var upload = multer({
-    storage : storage
-})
+const upload = multer({
+    storage: storage
+});
 
-dotenv.config({path: './.env'})
+dotenv.config({ path: './.env' });
 
-const db = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.UNAME,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE,
-})
+app.post('/signup', async (req, res) => {
+    const setName = req.body.name;
+    const setEmail = req.body.email;
+    const setNumber = req.body.number;
+    const setPassword = req.body.password;
 
-db.connect((error)=>{
-    if(error){
-        console.log(error)
+    try {
+        const user = await User.create({
+            name: setName,
+            email: setEmail,
+            number: setNumber,
+            password: setPassword,
+        });
+
+        return res.status(201).json({ message: 'User Registered successfully!', user });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error occurred during user registration' });
     }
-    else{
-        console.log('db connected')
+});
+
+app.post('/login', async (req, res) => {
+    const setLoginNumber = req.body.LoginNumber;
+    const setLoginPassword = req.body.LoginPassword;
+
+    try {
+        const user = await User.findOne({
+            where: { number: setLoginNumber, password: setLoginPassword },
+        });
+
+        if (user) {
+            return res.status(200).json({ message: 'User logged in successfully', user });
+        } else {
+            return res.status(401).json({ message: 'Invalid login number or password' });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: 'Database error' });
     }
-})
+});
 
-app.post('/signup', (req,res)=>{
-    const setName = req.body.name
-    const setEmail = req.body.email
-    const setNumber = req.body.number
-    const setPassword = req.body.password
-
-    const SQL = 'INSERT INTO users (name, email, number, password) VALUES(?,?,?,?)'
-
-    const Values = [setName, setEmail, setNumber, setPassword]
-
-    
-    db.query(SQL, Values, (error, results) =>{
-        if(error){
-            console.log(error)
-        } else{
-            console.log(results)
-            return res.json({ message: 'User Registered successfully!' });
-        }
-    })
-
-})
-
-app.post('/login', (req,res)=>{
-    const setLoginNumber = req.body.LoginNumber
-    const setLoginPassword = req.body.LoginPassword
-
-    const SQL = 'SELECT * FROM users WHERE number = ? AND password = ?'
-    const Values = [setLoginNumber, setLoginPassword]
-
-    
-    db.query(SQL, Values, (error, results) =>{
-        if(error){
-            console.log(error)
-        }
-        if(results.length > 0){
-            console.log(results)
-            return res.json({ message: 'User logged in successfully!' });
-        }
-        else{
-            console.log('no user found or wrong credentials')
-            return res.json({ message: 'no user found or wrong credentials' });
-        }
-    })
-
-})
-
-app.post('/create_posts', upload.single('image'), (req, res) => {
+app.post('/create_posts', upload.single('image'), async (req, res) => {
     const setTitle = req.body.title;
     const setCategory = req.body.category;
     const setDescription = req.body.description;
-    const setStatus = req.body.status;
     const setSecurityQuestion = req.body.securityQuestion;
     const setSecurityAnswer = req.body.securityAnswer;
-    const image = req.file ? req.file.filename : null
+    const image = req.file ? req.file.filename : null;
     const setTags = req.body.tags;
     const setPersonName = req.body.person_name;
     const setPersonAge = req.body.person_age;
@@ -110,49 +87,48 @@ app.post('/create_posts', upload.single('image'), (req, res) => {
     const setAnimal = req.body.animal;
     const setGovtPaperType = req.body.govt_paper_type;
     const setCertificateType = req.body.certificate_type;
+    const contactName = req.body.contact_name;
+    const contactPhoneNumber = req.body.contact_phone_number;
+    const contactEmailAddress = req.body.contact_email_address;
 
-    const SQL = `
-        INSERT INTO LostAndFound (
-            title, category, description, status, 
-            security_question, security_question_answer, 
-            image, tags, person_name, person_age, gender, 
-            animal, govt_paper_type, certificate_type
-        ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    try {
+        const post = await Posts.create({
+            title: setTitle,
+            category: setCategory,
+            description: setDescription,
+            security_question: setSecurityQuestion,
+            security_question_answer: setSecurityAnswer,
+            imageUpload: image,
+            tags: setTags,
+            personName: setPersonName,
+            personAge: setPersonAge,
+            personGender: setGender,
+            petBreed: setAnimal,
+            documentType: setGovtPaperType,
+            certificateType: setCertificateType,
+            dateLostFound: new Date(),
+            timeLostFound: new Date().toLocaleTimeString(),
+            contactName: contactName,
+            contactPhoneNumber: contactPhoneNumber,
+            contactEmailAddress: contactEmailAddress
+        });
 
-    const Values = [
-        setTitle, setCategory, setDescription, setStatus,
-        setSecurityQuestion, setSecurityAnswer, image, setTags,
-        setPersonName, setPersonAge, setGender,
-        setAnimal, setGovtPaperType, setCertificateType
-    ];
-
-    db.query(SQL, Values, (error, results) => {
-        if (error) {
-            console.log(error);
-            return res.json({ message: 'Error occurred during insertion.' });
-        } else {
-            console.log(results);
-            return res.json({ message: 'Lost and Found data inserted successfully!' });
-        }
-    });
+        return res.status(201).json({ message: 'Lost and Found data inserted successfully!', post });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error occurred during post creation', error });
+    }
 });
 
-app.get('/', (req, res) => {
-    const SQL = 'SELECT * FROM LostAndFound';
-
-    db.query(SQL, (error, results) => {
-        if (error) {
-            console.log(error);
-            return res.json({ message: 'Error fetching posts.' });
-        } else {
-            return res.json(results);
-        }
-    });
+app.get('/', async (req, res) => {
+    try {
+        const posts = await Posts.findAll();
+        return res.json(posts);
+    } catch (error) {
+        return res.status(500).json({ message: 'Error fetching posts.' });
+    }
 });
 
-
-app.listen(2000, () => {
-    console.log(`server at 2000`)
-}) 
+app.listen(2000, async () => {
+    console.log(`Server running on port 2000`);
+    await connectToDB();
+});

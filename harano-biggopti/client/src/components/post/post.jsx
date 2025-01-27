@@ -5,7 +5,7 @@ import NavigationBar from '../../assets/navigation';
 import Axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function LostAndFoundForm() {
+function posts() {
   const [category, setCategory] = useState('');
   const [animal, setAnimal] = useState('');
   const [govtPaperType, setGovtPaperType] = useState('');
@@ -279,4 +279,4 @@ function LostAndFoundForm() {
   );
 }
 
-export default LostAndFoundForm;
+export default posts;
